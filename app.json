@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "firesafetyapp",
     "name": "Fire_Safety_App",
     "slug": "Fire_Safety_App",
     "version": "1.0.0",
@@ -24,6 +25,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
