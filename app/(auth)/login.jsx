@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -18,9 +19,60 @@ import Animated, {
 export default function Login() {
   const scale = useSharedValue(1);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
   const animatedButtonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  const handleLogin = async () => {
+    setError('');
+
+    if (!email || !password) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      setError('Enter a valid email address');
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      setError(
+        'Password must be 8+ chars with uppercase, lowercase, number & symbol'
+      );
+      return;
+    }
+
+    try {
+      // 🔐 API authentication (replace with your backend URL)
+      const response = await fetch('https://your-api.com/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Authentication failed');
+        return;
+      }
+
+      // ✅ Successful login
+      router.replace('/(tabs)/dashboard');
+
+    } catch (err) {
+      setError('Server error. Please try again later.');
+    }
+  };
 
   return (
     <LinearGradient
@@ -32,7 +84,6 @@ export default function Login() {
           entering={FadeInUp.duration(700).springify()}
           style={styles.card}
         >
-          {/* Header */}
           <Text style={styles.title}>System Access</Text>
           <View style={styles.divider} />
           <Text style={styles.subtitle}>
@@ -44,6 +95,10 @@ export default function Login() {
               placeholder="Registered Email"
               placeholderTextColor="#8e8e93"
               style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </Animated.View>
 
@@ -53,15 +108,19 @@ export default function Login() {
               placeholderTextColor="#8e8e93"
               secureTextEntry
               style={styles.input}
+              value={password}
+              onChangeText={setPassword}
             />
           </Animated.View>
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Animated.View style={animatedButtonStyle}>
             <TouchableOpacity
               activeOpacity={0.85}
               onPressIn={() => (scale.value = withSpring(0.95))}
               onPressOut={() => (scale.value = withSpring(1))}
-              onPress={() => router.replace('/(tabs)/dashboard')}
+              onPress={handleLogin}
               style={styles.button}
             >
               <Text style={styles.btnText}>Access System</Text>
@@ -139,6 +198,13 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderWidth: 1,
     borderColor: '#2c2c2e',
+  },
+
+  error: {
+    color: '#ff4d4d',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 13,
   },
 
   button: {

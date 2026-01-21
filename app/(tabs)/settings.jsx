@@ -11,7 +11,7 @@ import Slider from '@react-native-community/slider';
 export default function Settings() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>⚙️ System Settings</Text>
+      <Text style={styles.title}>System Settings</Text>
       <Text style={styles.subtitle}>Configure alerts, location & AI sensitivity</Text>
 
       {/* Alerts */}
